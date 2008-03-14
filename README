@@ -1,0 +1,68 @@
+= NotNaughty - The Validation Framework
+
+NotNaughty extends your ruby Project with a highly custumizable validation API.
+
+== Features
+
+<b>Easy to adapt:</b>
+
+   require 'rubygems'
+   require 'not_naughty'
+   Person = Struct.new(:name) do
+     extend NotNaughty
+     validates(:name) { presence and length :minimum => 4 }
+     validated_before :clone
+     validated_before :dup, :without => :exception
+   end
+   Person.new('Horst').valid? # => true
+   Person.new('Foo').valid? # => false
+   Person.new('Foo').clone # goes *boom* with NotNaughty::ValidationException
+   Person.new('Foo').dup # => false
+
+<b>Easy to extent:</b>
+
+   class BunchynessValidation < NotNaughty::Validation
+     def initialize(opts, attributes)
+       __message = opts[:message] || '#{"%s".humanize} is not bunchy.'
+       super opts, attributes do |o, a, v|
+         o.errors.add(a, __message) unless v.respond_to? :to_bunchy
+       end
+     end
+   end
+   
+   Thingy = Struct.new(:bunchy_item) do
+     extend NotNaughty
+     validates_bunchyness_of :bunchy_item
+   end
+
+<b>Syntactical Sugar with Builder methods:</b>
+
+   validates(:username, :password) {length :minimum => 6}
+   validates(:password) {confirmed and complexity :level => :high}
+   validates(:if => :necessary?) {bunchyness_of :crap}
+
+<b>Beautiful error messages:</b>
+
+   validates_presence_of :person,
+     :message => '#{"%s".humanize} is gone missing.'
+
+<b>Conditional Validations:</b>
+
+   validates(:if => :necessary?) {...}
+   validates(:unless => proc {|obj| obj.vip?}) {...}
+
+<b>API compatible to Ruby-Sequel[http://code.google.com/p/ruby-sequel/] as plugin:</b>
+
+   class User < Sequel::Model
+     is :not_naughty
+     validates { presence_of :username and length_of :username, :within => 4..16 }
+     has_validations? # => true
+
+     # ...
+   end
+
+See Sequel::Plugins::NotNaughty for details...
+
+== Copying
+
+:include: COPYING
