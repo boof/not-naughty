@@ -3,10 +3,10 @@ module NotNaughty
   # == Container for failed validations.
   #
   # ...
-  class Errors
+  class Violation < RuntimeError
     extend Forwardable
     
-    def_delegators :@errors, :empty?, :clear, :[], :each, :to_yaml
+    def_delegators :@errors, :empty?, :clear, :[], :each
     
     include Enumerable
     
@@ -31,31 +31,6 @@ module NotNaughty
       end
     end
     
-    # Returns a ValidationException with <tt>self</tt> in <tt>:errors</tt>.
-    def to_exception
-      ValidationException.new self
-    end
   end
   
-  # == Exception class for NotNaughty
-  #
-  # Includes the instance of Errors that caused the Exception.
-  class ValidationException < RuntimeError
-    extend Forwardable
-    
-    attr_reader :errors
-    def_delegators :@errors, :on, :full_messages, :each
-    
-    # Returns instance of ValidationError with errors set
-    def initialize(errors)
-      @errors = errors
-
-      if errors.any?
-        super 'validation errors'
-      else
-        super 'no validation errors'
-      end
-    end
-  end
-
 end

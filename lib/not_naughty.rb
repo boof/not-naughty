@@ -4,6 +4,7 @@ require 'observer'
 
 require 'rubygems'
 require 'assistance'
+require 'tree'
 
 module Kernel#:nodoc:all
   methods.include? 'send!' or
@@ -19,7 +20,8 @@ module NotNaughty
   require 'not_naughty/validation'
   Validation.add_observer Builder
   
-  require 'not_naughty/errors'
+  require 'not_naughty/violation'
+  require 'not_naughty/error_handler'
   require 'not_naughty/instance_methods'
   
   # Extended classes get NotNaughty::Builder and NotNaughty::InstanceMethods.
@@ -42,6 +44,8 @@ module NotNaughty
   #   validator :create, :update # ~ - but with :create and :update states
   #   validator AnotherValidator # Instance of AnotherValidator
   #
+  #   validator AnotherValidator, :state_a, :state_b
+  #
   # The above examples work as long validator is not already called. To reset
   # an already assigned validator set <tt>@validator</tt> to nil.
   def validator(*states)
@@ -54,6 +58,7 @@ module NotNaughty
         end
       
       validator_klass.new(*states)
+      
     elsif superclass.respond_to? :validator
       superclass.validator.clone
       
@@ -69,19 +74,15 @@ module NotNaughty
   #
   # <b>Example:</b>
   #   validated_before :save # raise ValidationException unless valid?
-  #   validated_before :save, :without => :exception # => false unless valid?
-  def validated_before(method, *args)
+  def validated_before(method)
     __method = :"#{method}_without_validations"
     alias_method __method, method
     
-    without = args.extract_options![:without]
-    if [*without].include? :exception
-      define_method method do |*params|
-        if valid? then send! __method else false end
-      end
-    else
-      define_method method do |*params|
-        if valid? then send! __method else raise errors.to_exception end
+    define_method method do |*params|
+      begin
+        if valid? then send! __method else raise errors end
+      rescue Exception => error
+        self.class.validator.error_handler.raise error
       end
     end
   end

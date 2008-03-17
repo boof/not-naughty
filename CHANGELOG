@@ -1,3 +1,14 @@
+=== 0.5 (2008-03-17)
+* added an error handler, can now handle SQL validation errors
+* renamed Errors to Violation and merged it with ValidationException
+* changed specs for 0.4.1
+
+=== 0.4.2 (2008-03-12)
+* fixed bug that causes infinite recursion in some apps that reload classes
+
+=== 0.4.1 (2008-03-12)
+* some minor changes in validator method
+
 === 0.4 (2008-02-18)
 * completed documentation
 * added spec for :each in Builder::ValidationDelegator

@@ -14,12 +14,13 @@ describe subject do
     subject::should be_const_defined(:Validator)
     subject::should be_const_defined(:Builder)
     subject::should be_const_defined(:InstanceMethods)
-    subject::should be_const_defined(:Errors)
+    subject::should be_const_defined(:Violation)
   end
   it "should define a validator" do
     validated = Class.new(Object).extend subject
     validated.should respond_to(:validator)
-    validated.validator.should be_an_instance_of(subject::Validator)
+    validated.validator(:state).should be_an_instance_of(subject::Validator)
+    validated.validator.states.should have_key(:state)
     
     validator = Class.new(subject::Validator)
     validated = Class.new(Object).extend subject
@@ -62,12 +63,13 @@ describe subject do
     validated.validated_before :clone
     instance = validated.new
     instance.should_receive(:valid?).once.and_return(false)
-    lambda { instance.clone }.should raise_error(subject::ValidationException)
+    lambda { instance.clone }.should raise_error(subject::Violation)
   end
   it "should return false if invalid and method called" do
     validated = Class.new(Object).extend subject
     
-    validated.validated_before :clone, :without => :exception
+    validated.validated_before :clone
+    validated.validator.error_handler.handle(subject::Violation) {false}
     instance = validated.new
     instance.should_receive(:valid?).once.and_return(false)
     instance.clone.should == false

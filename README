@@ -35,6 +35,14 @@ NotNaughty extends your ruby Project with a highly custumizable validation API.
      validates_bunchyness_of :bunchy_item
    end
 
+<b>Handle SQL error gracefully:</b>
+
+    class Person
+        validator.error_handler.handle(SQLError) do |err|
+          # do funny things...
+        end
+    end
+
 <b>Syntactical Sugar with Builder methods:</b>
 
    validates(:username, :password) {length :minimum => 6}

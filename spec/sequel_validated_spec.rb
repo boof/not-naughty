@@ -14,7 +14,7 @@ describe Sequel::Plugins::NotNaughty do
     @obj.validator.should_receive(:has_validations?)
     @obj.validator.should_receive(:invoke).with(@instance)
     
-    @instance.errors.should be_an_instance_of(subject::Errors)
+    @instance.errors.should be_an_instance_of(subject::Violation)
     @instance.should respond_to(:validate)
     @instance.should respond_to(:valid?)
     @instance.should respond_to(:save_without_validations)

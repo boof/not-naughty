@@ -2,7 +2,7 @@ module NotNaughty
   module InstanceMethods
     
     # Returns instance of Errors.
-    def errors() @errors ||= ::NotNaughty::Errors.new end
+    def errors() @errors ||= ::NotNaughty::Violation.new end
     
     # Returns true if all validations passed
     def valid?

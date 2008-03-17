@@ -10,7 +10,16 @@ describe subject::Validator, 'with default state' do
   it "should shoult return default state" do
     @validator.get_state(nil).name.should == :default
   end
-
+  it "should have an errors handler" do
+    @validator.error_handler.should be_kind_of(NotNaughty::ErrorHandler)
+  end
+  it "should clone the error handler" do
+    rnd = rand(10)
+    
+    @validator.error_handler.should_receive(:clone).and_return(rnd)
+    @validator.clone.error_handler.should == rnd
+  end
+  
 end
 
 describe NotNaughty::Validator, 'with custom states' do

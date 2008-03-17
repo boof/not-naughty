@@ -54,6 +54,8 @@ module Sequel #:nodoc:
       
       # Applies plugin to a Sequel::Model.
       def self.apply(receiver, *args)
+        without = [args.extract_options![:without]].flatten
+        
         receiver.extend ::NotNaughty
         receiver.validator self, :create, :update
         
@@ -63,11 +65,15 @@ module Sequel #:nodoc:
         )
         
         receiver.extend ClassMethods
-        receiver.instance_eval { alias_method :save, :save! }
-        receiver.validated_before :save, *args
         
-        without = args.extract_options![:without]
-        receiver.send! :include, Hooks unless [*without].include? :hooks
+        receiver.instance_eval { alias_method :save, :save! }
+        receiver.validated_before :save
+        
+        without.include? :exception or
+        receiver.validator.error_handler.handle(::NotNaughty::Violation) {false}
+        
+        without.include? :hooks or
+        receiver.send! :include, Hooks
       end
       
       # Returns state for given instance.

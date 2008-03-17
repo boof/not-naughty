@@ -5,7 +5,7 @@ module NotNaughty
   # See new and get_state for more information.
   class Validator
     
-    attr_reader :states
+    attr_reader :states, :error_handler
     
     # By default it comes with the :default State unless other states are
     # provided.
@@ -22,16 +22,22 @@ module NotNaughty
       
       @states         = states.inject({}) {|m, s| m.update s => State.new(s)}
       @initial_state  = @states[states.first]
+      
+      @error_handler  = NotNaughty::ErrorHandler.new
     end
     
     def clone #:nodoc:
       states = [@initial_state.name] | @states.keys
+      error_handler = @error_handler.clone
       
       clone = self.class.new(*states)
       @states.each do |n, s|
         s.validations.each { |a, v| clone.states[n].validations[a] = v.clone }
       end
-      clone.instance_eval { @initial_state = @states[states.first] }
+      clone.instance_eval do
+        @initial_state = @states[states.first]
+        @error_handler = error_handler
+      end
       
       clone
     end
