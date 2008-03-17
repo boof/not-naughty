@@ -1,3 +1,6 @@
+=== 0.5.1 (2008-03-17)
+* fixed missing dependency
+
 === 0.5 (2008-03-17)
 * added an error handler, can now handle SQL validation errors
 * renamed Errors to Violation and merged it with ValidationException

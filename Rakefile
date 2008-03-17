@@ -9,7 +9,7 @@ include FileUtils
 # Configuration
 ##############################################################################
 NAME = "not_naughty"
-VERS = "0.5"
+VERS = "0.5.1"
 CLEAN.include ["**/.*.sw?", "pkg/*", ".config", "doc/*", "coverage/*"]
 RDOC_OPTS = [
   "--quiet", 
@@ -86,6 +86,7 @@ spec = Gem::Specification.new do |s|
   s.email = "florian.assmann@oniversus.de"
   s.homepage = "http://not-naughty.rubyforge.org"
   s.required_ruby_version = ">= 1.8.4"
+  s.add_dependency("rubytree",">=0.5.2")
 
   s.files = %w(COPYING README Rakefile) + Dir.glob("{doc,spec,lib}/**/*")
 
