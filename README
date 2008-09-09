@@ -51,8 +51,8 @@ NotNaughty extends your ruby Project with a highly custumizable validation API.
 
 <b>Beautiful error messages:</b>
 
-   validates_presence_of :person,
-     :message => '#{"%s".humanize} is gone missing.'
+   validates_presence_of :blood_red_shoes,
+     :message => '#{"%s".humanize} have gone missing.' # => Blood red shoes have gone missing.
 
 <b>Conditional Validations:</b>
 
@@ -70,6 +70,7 @@ NotNaughty extends your ruby Project with a highly custumizable validation API.
    end
 
 See Sequel::Plugins::NotNaughty for details...
+Notice: The current version of Sequel doesn't work with NotNaughty anymore, I hope I can fix this soon.
 
 == Copying
 
