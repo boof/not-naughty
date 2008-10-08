@@ -1,0 +1,59 @@
+= NotNaughty - The Validation Framework
+
+NotNaughty extends your ruby Project with a highly custumizable validation API.
+
+== Features
+
+<b>Easy to adapt:</b>
+
+   require 'rubygems'
+   require 'not_naughty'
+
+   Person = Struct.new(:name) do
+     extend NotNaughty
+     validates(:name) { presence and length :minimum => 4 }
+   end
+
+   Person.new('Horst').valid? # => true
+   Person.new('Foo').valid? # => false
+
+<b>Easy to extent:</b>
+
+   class ExampleValidation < NotNaughty::Validation
+     def initialize(options, attributes)
+       msg = options[:message] || '#{"%s".humanize} is not an example.'
+
+       super options, attributes do |record, attribute, value|
+         record.errors.add(attribute, msg) unless value.is_a? Example
+       end
+     end
+   end
+
+   Person.instance_eval do
+     validates_example_of :example_attribute
+   end
+
+<b>Handle SQL error gracefully:</b>
+
+   Person.instance_eval do
+     validator.error_handler.handle(SQLError) { |err| '...' }
+   end
+
+<b>Syntactical Sugar with Builder methods:</b>
+
+   validates(:username, :password, :if => :new?) {length :minimum => 6}
+   validates(:password, :allow_blank => 1) {confirmation and complexity :high}
+
+<b>Beautiful error messages:</b>
+
+   validates_presence_of :red_shoes,
+     :message => '#{"%s".humanize} are not here.' # => Red shoes are not here.
+
+<b>Conditional Validations:</b>
+
+   validates(:if => :necessary?) {...}
+   validates(:unless => proc {|obj| obj.vip?}) { '...' }
+
+== Copying
+
+:include: COPYING

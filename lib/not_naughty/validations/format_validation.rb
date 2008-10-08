@@ -1,12 +1,12 @@
 module NotNaughty
-  
+
   # == Validates format of obj's attribute via the <tt>:match</tt> method.
   #
   # Unless the validation succeeds an error hash (:attribute => :message)
   # is added to the obj's instance of Errors.
   #
   # <b>Options:</b>
-  # <tt>:with</tt>::   object that that'll check via a <tt>:match</tt> call
+  # <tt>:with</tt>::    object that checks via a <tt>:match</tt> call
   # <tt>:message</tt>:: see NotNaughty::Errors for details
   # <tt>:if</tt>::      see NotNaughty::Validation::Condition for details
   # <tt>:unless</tt>::  see NotNaughty::Validation::Condition for details
@@ -22,24 +22,34 @@ module NotNaughty
   #   FormatValidation.new({:with => /[A-Z]/}, :to_s).call obj, :to_s, 'abc'
   #   obj.errors.on(:to_s) # => ["Format of to_s does not match."]
   class FormatValidation < Validation
-    
+
+    # Predefined matchers.
+    DEFINITIONS = {
+      :email => /[a-z0-9!#\$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#\$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/,
+      :ip => /(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/
+    }
+
     def initialize(opts, attributes) #:nodoc:
-      (__format = opts[:with]).respond_to? :match or
-      raise ArgumentError, "#{__format.inspect} doesn't respond to :match"
-      
-      __message = opts[:message] || 'Format of %s does not match.'
-      
+      format_matcher = if Symbol === opts[:with] then DEFINITIONS[opts[:with]]
+      elsif opts[:with].respond_to? :match then opts[:with]
+      end or raise ArgumentError, "#{ opts[:with].inspect } doesn't :match"
+
+      msg = opts[:message] || '%s does not match format.'
+
       if opts[:allow_blank] or opts[:allow_nil]
-        __allow = if opts[:allow_blank] then :blank? else :nil? end
-        super opts, attributes do |o, a, v|
-          o.errors.add a, __message unless v.send! __allow or __format.match v
+        pass = opts[:allow_blank] ? :blank? : :nil?
+
+        super opts, attributes do |obj, attr, val|
+          val.send pass or format_matcher.match val or
+          obj.errors.add attr, msg
         end
       else
-        super opts, attributes do |o, a, v|
-          o.errors.add a, __message unless __format.match v
+        super opts, attributes do |obj, attr, val|
+          format_matcher.match val or
+          obj.errors.add attr, msg
         end
       end
     end
-    
+
   end
 end

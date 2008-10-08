@@ -8,7 +8,7 @@ module subject::InstanceMethods
 end
 
 describe subject do
-  
+
   it "should load necessary files" do
     subject::should be_const_defined(:Validation)
     subject::should be_const_defined(:Validator)
@@ -21,7 +21,7 @@ describe subject do
     validated.should respond_to(:validator)
     validated.validator(:state).should be_an_instance_of(subject::Validator)
     validated.validator.states.should have_key(:state)
-    
+
     validator = Class.new(subject::Validator)
     validated = Class.new(Object).extend subject
     validated.validator validator, :create, :update
@@ -30,27 +30,27 @@ describe subject do
   end
   it "should extend the receiver if validator is defined" do
     validated = Class.new(Object)
-    
+
     subject::Builder.should_receive(:extended).with(validated)
     subject::InstanceMethods.should_receive(:included).with(validated)
-    
+
     validated.extend subject
   end
   it "should deep-clone the validator if inherited" do
     super_validated = Class.new(Object).extend subject
     super_validated.validator.add_validation(:name) {|o, a, v|}
     validated = Class.new(super_validated)
-    
+
     validated.validator.should_not == super_validated.validator
     validated.validator.should have_validations
     validated.validator.add_validation(:name) {|o, a, v|}
-    
+
     super_validated.validator.get_state.validations[:name].length.
     should < validated.validator.get_state.validations[:name].length
   end
   it "should prepend a validation before any method" do
     validated = Class.new(Object).extend subject
-    
+
     validated.validated_before :clone
     instance = validated.new
     instance.should_receive(:valid?).once.and_return(true)
@@ -59,7 +59,7 @@ describe subject do
   end
   it "should raise an exception if invalid and method called" do
     validated = Class.new(Object).extend subject
-    
+
     validated.validated_before :clone
     instance = validated.new
     instance.should_receive(:valid?).once.and_return(false)
@@ -67,7 +67,7 @@ describe subject do
   end
   it "should return false if invalid and method called" do
     validated = Class.new(Object).extend subject
-    
+
     validated.validated_before :clone
     validated.validator.error_handler.handle(subject::Violation) {false}
     instance = validated.new
@@ -78,5 +78,5 @@ describe subject do
     subject::Validation.instance_variable_get(:@observer_peers).
     should include(subject::Builder)
   end
-  
+
 end

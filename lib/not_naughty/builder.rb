@@ -1,11 +1,11 @@
 module NotNaughty
-  
+
   # == Builder that builds
   #
   # With this you get syntactical sugar for all descendants of Validation, see
   # validates for examples.
   module Builder
-    
+
     # Observer method that creates Validation builder methods.
     #
     # A Validation with the class name TestValidation will get the
@@ -18,7 +18,7 @@ module NotNaughty
         end
       end
     end
-    
+
     # == Syntactic sugar.
     #
     # <b>Example:</b>
@@ -32,17 +32,17 @@ module NotNaughty
     def validates(*params, &block)
       ValidationDelegator.new(self, *params).instance_eval(&block)
     end
-    
+
     # Allows adding validations the legacy way.
     def validates_each(*attributes, &block)
       validator.add_validation(*attributes, &block)
     end
-    
+
     class ValidationDelegator < SimpleDelegator #:nodoc:all
       def initialize(receiver, *params)
         @_sd_obj_opts   = params.extract_options!
         @_sd_obj_params = params
-        
+
         super receiver
       end
       def method_missing(method_sym, *params) #:nodoc:
@@ -53,9 +53,9 @@ module NotNaughty
           opts = @_sd_obj_opts.update params.extract_options!
           [:"validates_#{method_sym}", params + [opts]]
         end
-        
+
         if @_sd_obj.respond_to? method_sym
-          @_sd_obj.send!(method_sym, *params)
+          @_sd_obj.send(method_sym, *params)
           return true
         else
           raise NoMethodError,
@@ -63,6 +63,6 @@ module NotNaughty
         end
       end
     end
-    
+
   end
 end

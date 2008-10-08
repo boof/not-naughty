@@ -9,15 +9,15 @@ include FileUtils
 # Configuration
 ##############################################################################
 NAME = "not_naughty"
-VERS = "0.5.1"
-CLEAN.include ["**/.*.sw?", "pkg/*", ".config", "doc/*", "coverage/*"]
+VERS = "0.6.0"
+CLEAN.include %w[ pkg doc coverage ]
 RDOC_OPTS = [
-  "--quiet", 
+  "--quiet",
   "--title", "NotNaughty: The Validation Framework",
   "--opname", "index.html",
   "--inline-source",
-  "--line-numbers", 
-  "--main", "README",
+  "--line-numbers",
+  "--main", "README.rdoc",
   "--inline-source",
   "--charset", "utf-8"
 ]
@@ -28,11 +28,11 @@ RDOC_OPTS = [
 task :doc => [:rdoc]
 
 Rake::RDocTask.new do |rdoc|
-  rdoc.rdoc_dir = "doc/rdoc"
+  rdoc.rdoc_dir = "doc"
   rdoc.options += RDOC_OPTS
-  rdoc.main = "README"
+  rdoc.main = "README.rdoc"
   rdoc.title = "NotNaughty: The Validation Framework"
-  rdoc.rdoc_files.add %w[README COPYING lib/**/*.rb]
+  rdoc.rdoc_files.add %w[README.rdoc COPYING CHANGELOG.rdoc lib/**/*.rb]
 end
 
 task :doc_rforge => [:doc]
@@ -79,16 +79,16 @@ spec = Gem::Specification.new do |s|
   s.version = VERS
   s.platform = Gem::Platform::RUBY
   s.has_rdoc = true
-  s.extra_rdoc_files = ["README", "CHANGELOG", "COPYING"]
+  s.extra_rdoc_files = ["README.rdoc", "CHANGELOG.rdoc", "COPYING"]
   s.summary = "Heavily armed validation framework."
   s.description = s.summary
   s.author = "Florian Aßmann"
-  s.email = "florian.assmann@oniversus.de"
-  s.homepage = "http://not-naughty.rubyforge.org"
-  s.required_ruby_version = ">= 1.8.4"
-  s.add_dependency("rubytree",">=0.5.2")
+  s.email = "boof@monkey-patch.me"
+  s.homepage = "http://monkey-patch.me/p/notnaughty"
+  s.required_ruby_version = ">= 1.8.6"
+  s.add_dependency("rubytree", ">= 0.5.2")
 
-  s.files = %w(COPYING README Rakefile) + Dir.glob("{doc,spec,lib}/**/*")
+  s.files = %w(COPYING README.rdoc Rakefile) + Dir.glob("{spec,lib}/**/*")
 
   s.require_path = "lib"
 end
@@ -113,11 +113,6 @@ end
 
 task :uninstall => [:clean] do
   sh %{sudo gem uninstall #{NAME}}
-end
-
-task :tag do
-  cwd = FileUtils.pwd
-  sh %{cd .. && svn copy #{cwd} tags/#{NAME}-#{VERS} && svn commit -m "#{NAME}-#{VERS} tag." tags}
 end
 
 ##############################################################################

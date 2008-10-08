@@ -1,5 +1,5 @@
 module NotNaughty
-  
+
   # == Validates acceptance of obj's attribute against a fixed value via <tt>:eql?</tt> call.
   #
   # Unless the validation succeeds an error hash (:attribute => :message)
@@ -24,16 +24,16 @@ module NotNaughty
   #   AcceptanceValidation.new({}, :to_s).call valid, :to_s, '1'
   #   valid.errors.on(:to_s).any? # => false
   class AcceptanceValidation < Validation
-    
+
     def initialize(opts, attributes) #:nodoc:
       __message, __accept =
         opts[:message] || '#{"%s".humanize} not accepted.',
         opts[:accept] || '1'
-      
+
       if opts[:allow_blank] or opts.fetch(:allow_nil, true)
         __allow = if opts[:allow_blank] then :blank? else :nil? end
         super opts, attributes do |o, a, v|
-          o.errors.add a, __message unless v.send! __allow or __accept.eql? v
+          o.errors.add a, __message unless v.send __allow or __accept.eql? v
         end
       else
         super opts, attributes do |o, a, v|
@@ -41,6 +41,6 @@ module NotNaughty
         end
       end
     end
-    
+
   end
 end

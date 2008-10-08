@@ -1,21 +1,21 @@
 module NotNaughty
-  
+
   # == The superclass for Validations.
   #
   # See new for more information.
   class Validation
-    
+
     BASEDIR = File.dirname __FILE__
     # Loader pattern
     PATTERN = File.join BASEDIR, %w[validations ** %s_validation.rb]
-    
+
     # Loads validations.
     def self.load(*validations)
       validations.each do |validation|
         Dir.glob(PATTERN % validation).each { |path| require path }
       end
     end
-    
+
     extend Observable
     def self.inherited(descendant) #:nodoc:
       changed and notify_observers(descendant)
@@ -23,7 +23,7 @@ module NotNaughty
       descendant.
       instance_variable_set :@observer_peers, @observer_peers.clone
     end
-    
+
     # Builds validations.
     #
     # <b>Example:</b>
@@ -54,40 +54,40 @@ module NotNaughty
       else
         options = params.extract_options!
         instance = allocate
-        instance.send! :initialize, options, params.map {|p|p.to_sym}, &block
+        instance.send :initialize, options, params.map {|p|p.to_sym}, &block
         instance
       end
     end
-    
+
     attr_reader :attributes
-    
+
     def initialize(opts, attributes, &block) #:nodoc:
       build_conditions opts[:if], opts[:unless]
       @attributes, @block, @opts = attributes, block, opts
     end
-    
+
     def call_without_conditions(obj, attr, value) #:nodoc:
       @block.call obj, attr, value
     end
     alias_method :call, :call_without_conditions
-    
+
     def call_with_conditions(obj, attr, value) #:nodoc:
       if @conditions.all? { |c| c.evaluate obj }
         call_without_conditions obj, attr, value
       end
     end
-    
+
     protected
     def build_conditions(p, n) #:nodoc:
       @conditions = []
       [p].flatten.each {|c| @conditions << Condition.new(c) if c }
       [n].flatten.each {|c| @conditions << Condition.new(c, false) if c }
-      
+
       (class << self; self; end).module_eval do
         alias_method :call, :call_with_conditions
       end unless @conditions.empty?
     end
-    
+
     # Conditions for use in Validations are usually used with Validations.
     class Condition
 
@@ -105,8 +105,8 @@ module NotNaughty
 
         block = case condition
         when Symbol then positive ?
-          proc { |o| o.send! @condition } :
-          proc { |o| not o.send! @condition }
+          proc { |o| o.send @condition } :
+          proc { |o| not o.send @condition }
         when UnboundMethod then positive ?
           proc { |o| @condition.bind(o).call } :
           proc { |o| not @condition.bind(o).call }
@@ -114,10 +114,10 @@ module NotNaughty
           proc { |o| @condition.call o } :
           proc { |o| not @condition.call o }
         end
-        
+
         (class << instance; self; end).
         module_eval { define_method(:evaluate, &block) }
-        
+
         instance
       end
 

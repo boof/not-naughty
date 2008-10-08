@@ -1,3 +1,9 @@
+=== 0.6 (2008-10-08)
+* fixed Rakefile
+* removed whitespaces
+* removed Ruby-Sequel adapter (becomes an extra gem)
+* removed assistance gem dependency
+
 === 0.5.1 (2008-03-17)
 * fixed missing dependency
 
@@ -20,7 +26,6 @@
 * fixed missing require
 
 === 0.3 (2008-02-09)
-
 * renamed to NotNaughty - The Validation Framework
 * made predefined Validation optional, you can load them with:
 
@@ -35,9 +40,7 @@
 * docs added
 
 === 0.2 (2008-02-09)
-
 * complete rewrite
 
 === 0.1 (2008-02-06)
-
 * initial release

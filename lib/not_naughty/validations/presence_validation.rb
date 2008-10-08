@@ -1,5 +1,5 @@
 module NotNaughty
-  
+
   # == Validates presence of obj's attribute via the <tt>:blank?</tt> method.
   #
   # Unless the validation succeeds an error hash (:attribute => :message)
@@ -18,14 +18,14 @@ module NotNaughty
   #   PresenceValidation.new({}, :to_s).call obj, :to_s, ''
   #   obj.errors.on(:to_s) # => ["To s is not present."]
   class PresenceValidation < Validation
-    
+
     def initialize(opts, attributes) #:nodoc:
       __message = opts[:message] || '#{"%s".humanize} is not present.'
-      
+
       super opts, attributes do |o, a, v|
         o.errors.add a, __message if v.blank?
       end
     end
-    
+
   end
 end

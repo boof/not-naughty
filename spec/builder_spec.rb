@@ -1,7 +1,7 @@
 require "#{ File.dirname(__FILE__) }/spec_helper.rb"
 
 describe subject::Builder do
-  
+
   before(:each) do
     @validatable = Class.new(Object) do
       def self.validator=(validator) @validator = validator end
@@ -12,7 +12,7 @@ describe subject::Builder do
     @validatable.validator = mock 'Validator'
     @validatable.extend(subject::Builder)
   end
-  
+
   it "should have a delegator class" do
     subject::Builder.constants.
       should include('ValidationDelegator')
@@ -58,7 +58,7 @@ describe subject::Builder do
       should_receive(:add_validation).
       with(:a, :b)
     @validatable.validates_each(:a, :b) {|o, a, v|}
-    
+
     pending 'expect a block'
   end
   it "should support :each in validates block" do
@@ -69,12 +69,12 @@ describe subject::Builder do
     @validatable.validates do
       each(:a, :b) {|o, a, v|}
     end
-    
+
     pending 'expect a block'
   end
   it "should raise a NoMethodError is builder method does not exist" do
     lambda { @validatable.validates() { bunch_of :holy_crap } }.
     should raise_error(NoMethodError)
   end
-  
+
 end

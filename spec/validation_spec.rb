@@ -1,7 +1,7 @@
 require "#{ File.dirname(__FILE__) }/spec_helper.rb"
 
 describe subject::Validation do
-  
+
   it "should register validations if inherited" do
     subject::Builder.
       should_receive(:update).any_number_of_times.
@@ -11,12 +11,12 @@ describe subject::Validation do
   it "should build validations with block" do
     block = proc {|o, a, v|}
     validation = subject::Validation.new({}, &block)
-    
+
     validation.instance_variable_get(:@block).should == block
   end
   it "should alias call to call_without_conditions" do
     validation = subject::Validation.new({}) {|o, a, v|}
-    
+
     validation.method(:call).
     should == validation.method(:call_without_conditions)
   end
@@ -36,40 +36,40 @@ describe subject::Validation do
   end
   it "should alias call to call_with_conditions" do
     validation = subject::Validation.new({:if => :nil?}) {|o, a, v|}
-    
+
     validation.method(:call).
     should == validation.method(:call_with_conditions)
   end
   it "should call" do
     probe = mock 'Probe'
     probe.should_receive(:test).exactly(3).times
-    
+
     validation = subject::Validation.
       new({}) { |o, a, v| [o, a, v].each { |p| p.test } }
-    
+
     validation.call probe, probe, probe
   end
   it "should call unless a condition passes" do
     probe = mock 'Probe'
     probe.stub!(:nil?).and_return(true)
-    
+
     validation = subject::Validation.
       new({:unless => :nil?}) { |o, a, v| [o, a, v].each { |p| p.test } }
-    
+
     validation.call probe, probe, probe
-    
+
     probe.should_receive(:test).exactly(3).times
     probe.stub!(:nil?).and_return(false)
-    
+
     validation.call probe, probe, probe
   end
   it "should not call" do
     probe = mock 'Probe'
     probe.should_not_receive(:test)
-    
+
     validation = subject::Validation.
       new({:if => :nil?}) { |o, a, v| [o, a, v].each { |p| p.test } }
-    
+
     validation.call probe, probe, probe
 
   end
@@ -83,7 +83,7 @@ describe subject::Validation do
     descendant = Class.new(subject::Validation)
     descendant.instance_variable_get(:@observer_peers).should be_true
   end
-  
+
 end
 
 describe subject::Validation::Condition do

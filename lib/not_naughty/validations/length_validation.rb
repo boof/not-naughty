@@ -1,5 +1,5 @@
 module NotNaughty
-  
+
   # == Validates length of obj's attribute via the <tt>:length</tt> method.
   #
   # Unless the validation succeeds an error hash (:attribute => :message)
@@ -25,7 +25,7 @@ module NotNaughty
   #
   # <b>Example:</b>
   #
-  #   obj = %w[a sentence with five words] # 
+  #   obj = %w[a sentence with five words] #
   #   def obj.errors() @errors ||= NotNauthy::Errors.new end
   #
   #   LengthValidation.new({:minimum => 4}, :to_a).
@@ -36,11 +36,11 @@ module NotNaughty
   #     call obj, :to_a, %w[a sentence with five words]
   #   obj.errors.on(:to_s).any? # => true
   class LengthValidation < Validation
-    
+
     def initialize(opts, attributes) #:nodoc:
-      
+
       block = build_block opts
-      
+
       if opts[:allow_blank]
         super opts, attributes do |o, a, v|
           block[o, a, v] unless v.blank?
@@ -51,7 +51,7 @@ module NotNaughty
         end
       end
     end
-    
+
     protected
     def build_block(opts) #:nodoc:
       if __length = opts[:is]
@@ -63,10 +63,10 @@ module NotNaughty
       elsif opts[:within] or opts[:minimum] && opts[:maximum]
         __range   = opts[:within]
         __range ||= Range.new opts[:minimum], opts[:maximum]
-        
+
         __message = opts[:message] ||
           "Length of %s is not within #{__range.first} and #{__range.last}."
-        
+
         proc do |o, a, v|
           o.errors.add a, __message unless __range.include? v.length
         end
@@ -74,7 +74,7 @@ module NotNaughty
         __boundary  = opts[:minimum]
         __message   = opts[:message] ||
           "Length of %s is smaller than #{__boundary}."
-        
+
         proc do |o, a, v|
           o.errors.add a, __message unless __boundary <= v.length
         end
@@ -82,7 +82,7 @@ module NotNaughty
         __boundary  = opts[:maximum]
         __message   = opts[:message] ||
           "Length of %s is greater than #{__boundary}."
-        
+
         proc do |o, a, v|
           o.errors.add a, __message unless __boundary >= v.length
         end
@@ -90,6 +90,6 @@ module NotNaughty
         raise ArgumentError, 'no boundary given'
       end
     end
-    
+
   end
 end

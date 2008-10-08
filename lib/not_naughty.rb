@@ -3,15 +3,11 @@ require 'forwardable'
 require 'observer'
 
 require 'rubygems'
-require 'assistance'
+gem 'rubytree', '>= 0.5.2'
 require 'tree'
 
-module Kernel#:nodoc:all
-  methods.include? 'send!' or
-  alias_method :send!, :send
-end
-
 $:.unshift File.dirname(__FILE__)
+require 'core_extensions'
 
 module NotNaughty
   require 'not_naughty/validator'
@@ -19,11 +15,11 @@ module NotNaughty
   require 'not_naughty/builder'
   require 'not_naughty/validation'
   Validation.add_observer Builder
-  
+
   require 'not_naughty/violation'
   require 'not_naughty/error_handler'
   require 'not_naughty/instance_methods'
-  
+
   # Extended classes get NotNaughty::Builder and NotNaughty::InstanceMethods.
   def self.extended(base)
     base.instance_eval do
@@ -31,7 +27,7 @@ module NotNaughty
       extend Builder
     end
   end
-  
+
   # call-seq:
   # validator(validator_klass = NotNaughty::Validator, *states = [:default])
   #
@@ -56,18 +52,18 @@ module NotNaughty
         else
           NotNaughty::Validator
         end
-      
+
       validator_klass.new(*states)
-      
+
     elsif superclass.respond_to? :validator
       superclass.validator.clone
-      
+
     else
       NotNaughty::Validator.new
-      
+
     end
   end
-  
+
   # Prepends a call for validation before then given method. If, on call, the
   # validation passes the method is called. Otherwise it raises an
   # NotNaughty::ValidationException or returns false.
@@ -77,14 +73,14 @@ module NotNaughty
   def validated_before(method)
     __method = :"#{method}_without_validations"
     alias_method __method, method
-    
+
     define_method method do |*params|
       begin
-        if valid? then send! __method else raise errors end
+        if valid? then send __method else raise errors end
       rescue Exception => error
         self.class.validator.error_handler.raise error
       end
     end
   end
-  
+
 end

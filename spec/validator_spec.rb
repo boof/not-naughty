@@ -1,9 +1,9 @@
 require "#{ File.dirname(__FILE__) }/spec_helper.rb"
 
 describe subject::Validator, 'with default state' do
-  
+
   before(:each) { @validator = subject::Validator.new }
-  
+
   it "should have atleast the default state" do
     @validator.instance_variable_get(:@states).keys.should include(:default)
   end
@@ -15,20 +15,20 @@ describe subject::Validator, 'with default state' do
   end
   it "should clone the error handler" do
     rnd = rand(10)
-    
+
     @validator.error_handler.should_receive(:clone).and_return(rnd)
     @validator.clone.error_handler.should == rnd
   end
-  
+
 end
 
 describe NotNaughty::Validator, 'with custom states' do
-  
+
   before(:each) do
     @states = [:create, :update]
     @validator = subject::Validator.new(*@states)
   end
-  
+
   it "should assign states dynamically" do
     @validator.states.keys.should include(*@states)
   end
@@ -38,14 +38,14 @@ describe NotNaughty::Validator, 'with custom states' do
   end
   it "should add validations to all states" do
     @validator.add_validation :firstname, :lastname
-    
+
     @validator.states.each do |name, state|
       state.validations.should include(:firstname, :lastname)
     end
   end
   it "should add validations to :create state" do
     @validator.add_validation :firstname, :lastname, :on => :create
-    
+
     @validator.states[:create].validations.keys.
     should include(:firstname, :lastname)
     @validator.states[:update].validations.keys.
@@ -53,7 +53,7 @@ describe NotNaughty::Validator, 'with custom states' do
   end
   it "should add validations to :create and :update states" do
     @validator.add_validation :firstname, :lastname, :on => [:create, :update]
-    
+
     @validator.states.each do |name, state|
       state.validations.should include(:firstname, :lastname)
     end
@@ -76,12 +76,12 @@ describe NotNaughty::Validator, 'with custom states' do
     @validator.add_validation :firstname, :lastname, :on => :update
     @validator.should_not have_validations('')
   end
-  it "should send! attributes to probe if invoked" do
+  it "should send attributes to probe if invoked" do
     block = proc {|o, a, v|}
 
     probe = mock 'Probe'
-    probe.should_receive(:send!).with(:firstname)
-    probe.should_receive(:send!).with(:lastname)
+    probe.should_receive(:send).with(:firstname)
+    probe.should_receive(:send).with(:lastname)
 
     @validator.add_validation :firstname, :lastname, &block
     @validator.invoke probe
@@ -91,7 +91,7 @@ describe NotNaughty::Validator, 'with custom states' do
 
     probe = mock 'Probe'
     value = mock 'Value'
-    probe.stub!(:send!).and_return(value)
+    probe.stub!(:send).and_return(value)
 
     @validator.add_validation :firstname, :lastname, &block
     @validator.get_state.validations
@@ -102,17 +102,17 @@ describe NotNaughty::Validator, 'with custom states' do
     validator_clone.states.length == @validator.states.length
     validator_clone.states.should_not != @validator.states
   end
-  
+
 end
 
 describe NotNaughty::Validator::State do
-  
+
   before(:each) { @state = NotNaughty::Validator::State.new }
-  
+
   it "should initialize with name and validations" do
     @state.name.should == :default
     @state.validations.should be_an_instance_of(Hash)
-    
+
     @state = NotNaughty::Validator::State.new :foo
     @state.name.should == :foo
   end
@@ -128,5 +128,5 @@ describe NotNaughty::Validator::State do
     @state.validations[:foo] = [:bar]
     @state.should have_validations
   end
-  
+
 end
