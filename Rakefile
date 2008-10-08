@@ -8,7 +8,7 @@ include FileUtils
 ##############################################################################
 # Configuration
 ##############################################################################
-NAME = "not_naughty"
+NAME = "not-naughty"
 VERS = "0.6.0"
 CLEAN.include %w[ pkg doc coverage ]
 RDOC_OPTS = [
@@ -39,7 +39,7 @@ task :doc_rforge => [:doc]
 
 desc "Update docs and upload to rubyforge.org"
 task :doc_rforge do
-  sh %{scp -r doc/rdoc/* boof@rubyforge.org:/var/www/gforge-projects/not-naughty}
+  sh %{scp -r doc/* boof@rubyforge.org:/var/www/gforge-projects/not-naughty}
 end
 
 ##############################################################################
