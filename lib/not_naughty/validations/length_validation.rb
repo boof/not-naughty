@@ -47,7 +47,6 @@ end
 BLOCK
 
     def initialize(valid, attributes) #:nodoc:
-      valid = Marshal.load Marshal.dump(valid)
       super valid, attributes, &build_block(valid)
     end
 

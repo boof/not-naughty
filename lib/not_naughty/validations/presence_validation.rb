@@ -20,7 +20,6 @@ module NotNaughty
   class PresenceValidation < Validation
 
     def initialize(valid, attributes) #:nodoc:
-      valid = Marshal.load Marshal.dump(valid)
       valid[:message] ||= '%s is not present.'
 
       super valid, attributes do |obj, attr, value|

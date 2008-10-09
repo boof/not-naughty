@@ -21,7 +21,6 @@ module NotNaughty
   class ConfirmationValidation < Validation
 
     def initialize(valid, attributes) #:nodoc:
-      valid = Marshal.load Marshal.dump(valid)
       valid[:message] ||= '%s could not be confirmed.'
 
       if valid[:allow_blank] || valid[:allow_nil]

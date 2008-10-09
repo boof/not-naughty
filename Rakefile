@@ -9,7 +9,7 @@ include FileUtils
 # Configuration
 ##############################################################################
 NAME = "not-naughty"
-VERS = "0.6.0"
+VERS = "0.6.1"
 CLEAN.include %w[ pkg doc coverage ]
 RDOC_OPTS = [
   "--quiet",

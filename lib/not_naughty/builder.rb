@@ -40,26 +40,25 @@ module NotNaughty
 
     class ValidationDelegator < SimpleDelegator #:nodoc:all
       def initialize(receiver, *params)
-        @_sd_obj_opts   = params.extract_options!
-        @_sd_obj_params = params
+        @_sd_obj_opts       = params.extract_options!
+        @_sd_obj_attributes = params
 
         super receiver
       end
       def method_missing(method_sym, *params) #:nodoc:
-        method_sym, params = unless @_sd_obj_params.empty?
-          opts = @_sd_obj_opts.update params.extract_options!
-          [:"validates_#{method_sym}_of", @_sd_obj_params + [opts]]
+        valid = @_sd_obj_opts.merge params.extract_options!
+        valid = Marshal.load Marshal.dump(valid)
+
+        method_sym, params = unless @_sd_obj_attributes.empty?
+          [:"validates_#{ method_sym }_of", @_sd_obj_attributes + [valid]]
         else
-          opts = @_sd_obj_opts.update params.extract_options!
-          [:"validates_#{method_sym}", params + [opts]]
+          [:"validates_#{ method_sym }", params + [valid]]
         end
 
         if @_sd_obj.respond_to? method_sym
-          @_sd_obj.send(method_sym, *params)
-          return true
+          @_sd_obj.send(method_sym, *params); true
         else
-          raise NoMethodError,
-            "unable to evaluate ´#{method_sym}(*#{params.inspect})'"
+          raise NoMethodError, "unable to evaluate ´#{method_sym}(#{ params.map {|p|p.inspect} * ','})'"
         end
       end
     end

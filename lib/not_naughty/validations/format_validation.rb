@@ -32,8 +32,6 @@ module NotNaughty
     }
 
     def initialize(valid, attributes) #:nodoc:
-      valid = Marshal.load Marshal.dump(valid)
-      
       valid[:with] = PREDEFINED.fetch valid[:with] if valid[:with].is_a? Symbol
       valid[:with].respond_to? :match or
       raise ArgumentError, "#{ valid[:with].inspect } doesn't :match"

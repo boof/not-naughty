@@ -28,8 +28,6 @@ module NotNaughty
   class NumericalityValidation < FormatValidation
 
     def initialize(valid, attributes) #:nodoc:
-      valid = Marshal.load Marshal.dump(valid)
-
       valid[:with] = if valid[:only_integer]
         valid[:message] ||= '%s is not an integer.'
         /^[+-]?\d+$/
