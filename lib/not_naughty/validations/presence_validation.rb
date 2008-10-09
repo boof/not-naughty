@@ -19,11 +19,13 @@ module NotNaughty
   #   obj.errors.on(:to_s) # => ["To s is not present."]
   class PresenceValidation < Validation
 
-    def initialize(opts, attributes) #:nodoc:
-      __message = opts[:message] || '#{"%s".humanize} is not present.'
+    def initialize(valid, attributes) #:nodoc:
+      valid = Marshal.load Marshal.dump(valid)
+      valid[:message] ||= '%s is not present.'
 
-      super opts, attributes do |o, a, v|
-        o.errors.add a, __message if v.blank?
+      super valid, attributes do |obj, attr, value|
+        value.blank? and
+        obj.errors.add attr, valid[:message]
       end
     end
 

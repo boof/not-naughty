@@ -23,31 +23,43 @@ module NotNaughty
   #   obj.errors.on(:to_s) # => ["Format of to_s does not match."]
   class FormatValidation < Validation
 
+    VALIDATION = 
+
     # Predefined matchers.
-    DEFINITIONS = {
+    PREDEFINED = {
       :email => /[a-z0-9!#\$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#\$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/,
       :ip => /(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/
     }
 
-    def initialize(opts, attributes) #:nodoc:
-      format_matcher = if Symbol === opts[:with] then DEFINITIONS[opts[:with]]
-      elsif opts[:with].respond_to? :match then opts[:with]
-      end or raise ArgumentError, "#{ opts[:with].inspect } doesn't :match"
+    def initialize(valid, attributes) #:nodoc:
+      valid = Marshal.load Marshal.dump(valid)
+      
+      valid[:with] = PREDEFINED.fetch valid[:with] if valid[:with].is_a? Symbol
+      valid[:with].respond_to? :match or
+      raise ArgumentError, "#{ valid[:with].inspect } doesn't :match"
 
-      msg = opts[:message] || '%s does not match format.'
+      valid[:message] ||= '%s does not match format.'
 
-      if opts[:allow_blank] or opts[:allow_nil]
-        pass = opts[:allow_blank] ? :blank? : :nil?
-
-        super opts, attributes do |obj, attr, val|
-          val.send pass or format_matcher.match val or
-          obj.errors.add attr, msg
-        end
+      if valid[:allow_blank] || valid[:allow_nil]
+        valid[:allow] = valid[:allow_blank] ? :blank? : :nil?
+        super valid, attributes, &matching_block_with_exception(valid)
       else
-        super opts, attributes do |obj, attr, val|
-          format_matcher.match val or
-          obj.errors.add attr, msg
-        end
+        super valid, attributes, &matching_block(valid)
+      end
+    end
+
+    protected
+    def matching_block_with_exception(valid)
+      proc do |obj, attr, value|
+        value.send valid[:allow] or
+        valid[:with].match value or
+        obj.errors.add attr, valid[:message]
+      end
+    end
+    def matching_block(valid)
+      proc do |obj, attr, value|
+        valid[:with].match value or
+        obj.errors.add attr, valid[:message]
       end
     end
 

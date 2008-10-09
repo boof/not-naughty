@@ -20,22 +20,31 @@ module NotNaughty
   #   obj.errors.on(:to_s).any? # => true
   class ConfirmationValidation < Validation
 
-    def initialize(opts, attributes) #:nodoc:
-      __message = opts[:message] || '#{"%s".humanize} could not be confirmed.'
+    def initialize(valid, attributes) #:nodoc:
+      valid = Marshal.load Marshal.dump(valid)
+      valid[:message] ||= '%s could not be confirmed.'
 
-      if opts[:allow_blank] or opts[:allow_nil]
-        __allow = if opts[:allow_blank] then :blank? else :nil? end
-        super opts, attributes do |o, a, v|
-          o.errors.add a, __message unless
-          v.send __allow or o.send(:"#{a}_confirmation").eql? v
-        end
+      if valid[:allow_blank] || valid[:allow_nil]
+        valid[:allow] = valid[:allow_blank] ? :blank? : :nil?
+        super valid, attributes, &confirmation_block_with_exception(valid)
       else
-        super opts, attributes do |o, a, v|
-          o.errors.add a, __message unless
-          o.send(:"#{a}_confirmation").eql? v
-        end
+        super valid, attributes, &confirmation_block(valid)
       end
     end
 
+    protected
+    def confirmation_block_with_exception(valid)
+      proc do |obj, attr, value|
+        value.send valid[:allow] or
+        obj.send(:"#{ attr }_confirmation") == value or
+        obj.errors.add attr, valid[:message]
+      end
+    end
+    def confirmation_block(valid)
+      proc do |obj, attr, value|
+        obj.send(:"#{ attr }_confirmation") == value or
+        obj.errors.add attr, valid[:message]
+      end
+    end
   end
 end

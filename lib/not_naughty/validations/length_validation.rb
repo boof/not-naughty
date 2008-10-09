@@ -35,60 +35,57 @@ module NotNaughty
   #   LengthValidation.new({:within => 1..4}, :to_a).
   #     call obj, :to_a, %w[a sentence with five words]
   #   obj.errors.on(:to_s).any? # => true
+  #
+  # I'm sorry for using eval here...
   class LengthValidation < Validation
 
-    def initialize(opts, attributes) #:nodoc:
+TEMPLATE = <<-BLOCK
+proc do |obj, attr, value|
+  value.%s or %s value.length or
+  obj.errors.add attr, %s
+end
+BLOCK
 
-      block = build_block opts
-
-      if opts[:allow_blank]
-        super opts, attributes do |o, a, v|
-          block[o, a, v] unless v.blank?
-        end
-      else
-        super opts, attributes do |o, a, v|
-          block[o, a, v] unless v.nil?
-        end
-      end
+    def initialize(valid, attributes) #:nodoc:
+      valid = Marshal.load Marshal.dump(valid)
+      super valid, attributes, &build_block(valid)
     end
 
     protected
-    def build_block(opts) #:nodoc:
-      if __length = opts[:is]
-        __message = opts[:message] ||
-          "Length of %s is not equal to #{__length}."
-        proc do |o, a, v|
-          o.errors.add a, __message unless __length.eql? v.length
-        end
-      elsif opts[:within] or opts[:minimum] && opts[:maximum]
-        __range   = opts[:within]
-        __range ||= Range.new opts[:minimum], opts[:maximum]
-
-        __message = opts[:message] ||
-          "Length of %s is not within #{__range.first} and #{__range.last}."
-
-        proc do |o, a, v|
-          o.errors.add a, __message unless __range.include? v.length
-        end
-      elsif opts[:minimum]
-        __boundary  = opts[:minimum]
-        __message   = opts[:message] ||
-          "Length of %s is smaller than #{__boundary}."
-
-        proc do |o, a, v|
-          o.errors.add a, __message unless __boundary <= v.length
-        end
-      elsif opts[:maximum]
-        __boundary  = opts[:maximum]
-        __message   = opts[:message] ||
-          "Length of %s is greater than #{__boundary}."
-
-        proc do |o, a, v|
-          o.errors.add a, __message unless __boundary >= v.length
-        end
+    def build_block(valid) #:nodoc:
+      if valid[:is] then is_block valid
+      elsif valid[:within] or valid[:minimum] && valid[:maximum] then within_block valid
+      elsif valid[:minimum] then minimum_block valid
+      elsif valid[:maximum] then maximum_block valid
       else
         raise ArgumentError, 'no boundary given'
       end
+    end
+
+    def is_block(valid)
+      valid[:message] ||= "Length of %s is not equal to #{ valid[:is] }."
+
+      eval TEMPLATE % [ valid[:allow_blank] ? :blank? : :nil?,
+        "#{ valid[:is].inspect } ==", valid[:message].inspect ]
+    end
+    def within_block(valid)
+      valid[:within] ||= Range.new valid[:minimum], valid[:maximum]
+      valid[:message] ||= "Length of %s is not within #{ valid[:within].min } and #{ valid[:within].max }."
+
+      eval TEMPLATE % [ valid[:allow_blank] ? :blank? : :nil?,
+        "(#{ valid[:within].inspect }).include?", valid[:message].inspect ]
+    end
+    def minimum_block(valid)
+      valid[:message] ||= "Length of %s is less than #{ valid[:minimum] }."
+
+      eval TEMPLATE % [ valid[:allow_blank] ? :blank? : :nil?,
+        "#{ valid[:minimum].inspect } <=", valid[:message].inspect ]
+    end
+    def maximum_block(valid)
+      valid[:message] ||= "Length of %s is greater than #{ valid[:maximum] }."
+
+      eval TEMPLATE % [ valid[:allow_blank] ? :blank? : :nil?,
+        "#{ valid[:maximum].inspect } >=", valid[:message].inspect ]
     end
 
   end

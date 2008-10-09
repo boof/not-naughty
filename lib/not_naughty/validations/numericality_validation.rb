@@ -27,16 +27,18 @@ module NotNaughty
   #   obj.errors.on(:to_s).any? # => true
   class NumericalityValidation < FormatValidation
 
-    def initialize(opts, attributes) #:nodoc:
-      opts[:with] = if opts[:only_integer]
-        opts[:message] ||= '#{"%s".humanize} is not an integer.'
+    def initialize(valid, attributes) #:nodoc:
+      valid = Marshal.load Marshal.dump(valid)
+
+      valid[:with] = if valid[:only_integer]
+        valid[:message] ||= '%s is not an integer.'
         /^[+-]?\d+$/
       else
-        opts[:message] ||= '#{"%s".humanize} is not a number.'
+        valid[:message] ||= '%s is not a number.'
         /^[+-]?\d*\.?\d+$/
       end
 
-      super opts, attributes
+      super valid, attributes
     end
 
   end
