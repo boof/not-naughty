@@ -1,4 +1,7 @@
-require File.dirname(__FILE__) + '/../lib/not_naughty.rb'
+require 'rubygems'
+require 'spec'
+
+require "#{ File.dirname __FILE__ }/../lib/not_naughty.rb"
 
 def subject() ::NotNaughty end
 def h(something)

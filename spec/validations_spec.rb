@@ -94,10 +94,10 @@ describe FormatExample do
 
   before(:each) { @example = FormatExample.clone }
 
-  it "claims to match 99% of all e-mail addresses out there..." do
+  it "claims to match 99.9% of all e-mail addresses out there..." do
     # Regexp was taken from: http://www.regular-expressions.info/email.html
     @example.validates_format_of :email,
-      :with => /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i
+      :with => :email
     @example.new('"Foo Bar" <foo@bar.com>').should be_valid
     @example.new('foo@bar.com').should be_valid
     @example.new('foobarcom').should_not be_valid

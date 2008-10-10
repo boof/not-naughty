@@ -16,14 +16,20 @@ module NotNaughty
   #   obj = 'abc'
   #   def obj.errors() @errors ||= NotNauthy::Errors.new end
   #
-  #   FormatValidation.new({:with => /[a-z]/}, :to_s).call obj, :to_s, 'abc'
+  #   FormatValidation.new({:with => /[a-z]/}, :to_s).call obj, :to_s, obj
   #   obj.errors.on(:to_s).any? # => false
   #
-  #   FormatValidation.new({:with => /[A-Z]/}, :to_s).call obj, :to_s, 'abc'
+  #   FormatValidation.new({:with => /[A-Z]/}, :to_s).call obj, :to_s, obj
   #   obj.errors.on(:to_s) # => ["Format of to_s does not match."]
+  #
+  # <b>Use predefined format expressions:</b>
+  #
+  #   obj = 'Valid Address <foo@bar.baz>'
+  #   def obj.errors() @errors ||= NotNauthy::Errors.new end
+  #
+  #   FormatValidation.new({:with => :email}, :to_s).call obj, :to_s, obj
+  #   obj.errors.on(:to_s).any? # => false
   class FormatValidation < Validation
-
-    VALIDATION = 
 
     # Predefined matchers.
     PREDEFINED = {

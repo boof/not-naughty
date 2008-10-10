@@ -1,3 +1,8 @@
+=== 0.6.1 (2008-10-10)
+* builder/validation cleanups
+* added gemspecs for github
+* added support for predefined format expressions [resolves:#19814]
+
 === 0.6 (2008-10-08)
 * fixed Rakefile
 * removed whitespaces
