@@ -1,12 +1,11 @@
-require "#{ File.dirname(__FILE__) }/spec_helper.rb"
+require "#{ File.dirname __FILE__ }/spec_helper.rb"
 
 describe subject::Validation do
 
   it "should register validations if inherited" do
-    subject::Builder.
-      should_receive(:update).any_number_of_times.
+    subject::ClassMethods.
+      should_receive(:update).once.
       with Class.new(subject::Validation)
-    pending 'This one kinda sucks...'
   end
   it "should build validations with block" do
     block = proc {|o, a, v|}

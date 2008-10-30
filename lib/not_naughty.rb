@@ -1,4 +1,3 @@
-require 'delegate'
 require 'forwardable'
 require 'observer'
 
@@ -12,19 +11,20 @@ require 'core_extensions'
 module NotNaughty
   require 'not_naughty/validator'
 
-  require 'not_naughty/builder'
+  require 'not_naughty/class_methods'
   require 'not_naughty/validation'
-  Validation.add_observer Builder
+  Validation.add_observer ClassMethods
 
   require 'not_naughty/violation'
   require 'not_naughty/error_handler'
   require 'not_naughty/instance_methods'
 
-  # Extended classes get NotNaughty::Builder and NotNaughty::InstanceMethods.
+  # Extended classes get NotNaughty::ClassMethods and
+  # NotNaughty::InstanceMethods.
   def self.extended(base)
     base.instance_eval do
       include InstanceMethods
-      extend Builder
+      extend ClassMethods
     end
   end
 

@@ -1,6 +1,6 @@
 require "#{ File.dirname(__FILE__) }/spec_helper.rb"
 
-module subject::Builder
+module subject::ClassMethods
   def self.extended(base) end
 end
 module subject::InstanceMethods
@@ -12,7 +12,7 @@ describe subject do
   it "should load necessary files" do
     subject::should be_const_defined(:Validation)
     subject::should be_const_defined(:Validator)
-    subject::should be_const_defined(:Builder)
+    subject::should be_const_defined(:ClassMethods)
     subject::should be_const_defined(:InstanceMethods)
     subject::should be_const_defined(:Violation)
   end
@@ -31,7 +31,7 @@ describe subject do
   it "should extend the receiver if validator is defined" do
     validated = Class.new(Object)
 
-    subject::Builder.should_receive(:extended).with(validated)
+    subject::ClassMethods.should_receive(:extended).with(validated)
     subject::InstanceMethods.should_receive(:included).with(validated)
 
     validated.extend subject
@@ -74,9 +74,9 @@ describe subject do
     instance.should_receive(:valid?).once.and_return(false)
     instance.clone.should == false
   end
-  it "should add Builder to Validation observers" do
+  it "should add ClassMethods to Validation observers" do
     subject::Validation.instance_variable_get(:@observer_peers).
-    should include(subject::Builder)
+    should include(subject::ClassMethods)
   end
 
 end
