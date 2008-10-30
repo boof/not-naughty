@@ -5,14 +5,20 @@ module NotNaughty
   # See new for more information.
   class Validation
 
-    BASEDIR = File.dirname __FILE__
-    # Loader pattern
-    PATTERN = File.join BASEDIR, %w[validations ** %s_validation.rb]
+    # Returns array of paths which are scanned for validations by load.
+    def self.load_paths
+      @load_paths
+    end
+    @load_paths = [File.join(%W[#{ File.dirname __FILE__ } validations])]
+    PATTERN = File.join %w[%s ** %s_validation.rb]
 
-    # Loads validations.
+    # Loads validations from load_paths.
     def self.load(*validations)
       validations.each do |validation|
-        Dir.glob(PATTERN % validation).each { |path| require path }
+        @load_paths.each do |load_path|
+          pattern = PATTERN % [load_path, validation]
+          Dir[pattern].each { |validation_path| require validation_path }
+        end
       end
     end
 
