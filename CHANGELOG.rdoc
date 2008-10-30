@@ -1,3 +1,9 @@
+=== 0.6.2 (2008-10-31)
+* NotNaughty::Builder is now NotNaughty::ClassMethods
+* NotNaughty::Builder::ValidationDelegator is now NotNaughty::ClassMethods::Builder
+* NotNaughty::ClassMethods::Builder does not inherit from Delegation anymore, so { format :with => /rx/ } works
+* NotNaughty::Validation loads validations from directories listed in load_paths
+
 === 0.6.1 (2008-10-10)
 * builder/validation cleanups
 * added gemspecs for github
