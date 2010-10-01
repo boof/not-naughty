@@ -1,3 +1,5 @@
+# Encoding: UTF-8
+
 require "rake"
 require "rake/clean"
 require "rake/gempackagetask"
